@@ -1,0 +1,118 @@
+x-airflow-common: &airflow-common
+  image: {{ AIRFLOW_IMAGE_NAME }}
+  environment:
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "{{ AIRFLOW__DATABASE__SQL_ALCHEMY_CONN }}"
+    AIRFLOW__WEBSERVER__SECRET_KEY: "{{ AIRFLOW__WEBSERVER__SECRET_KEY }}"
+    LDAP_ADMIN_PASSWORD: "{{ LDAP_ADMIN_PASSWORD }}"
+    AIRFLOW__CORE__AIRFLOW_CONFIG: /opt/airflow/airflow.cfg
+  volumes:
+    - /opt/airflow/certs:/certs:ro
+    - /opt/airflow/webserver_config.py:/opt/airflow/webserver_config.py:ro
+    - /opt/airflow/airflow.cfg:/opt/airflow/airflow.cfg:ro
+  depends_on:
+    postgresql:
+      condition: service_healthy
+
+networks:
+  default:
+    name: airflow-network
+
+services:
+  postgresql:
+    image: dockerhub.timeweb.cloud/library/postgres:16
+    environment:
+      POSTGRES_USER: {{ POSTGRES_USER }}
+      POSTGRES_PASSWORD: {{ POSTGRES_PASSWORD }}
+      POSTGRES_DB: {{ POSTGRES_DB }}
+    entrypoint: >
+      bash -c "
+      mkdir -p /var/lib/postgresql/certs &&
+      cp /certs/* /var/lib/postgresql/certs/ &&
+      chown -R postgres:postgres /var/lib/postgresql/certs &&
+      chmod 600 /var/lib/postgresql/certs/postgres.key &&
+      exec docker-entrypoint.sh postgres
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/certs/postgres.crt
+      -c ssl_key_file=/var/lib/postgresql/certs/postgres.key
+      -c ssl_ca_file=/var/lib/postgresql/certs/ca.crt
+      "
+    volumes:
+      - /opt/airflow/certs:/certs:ro
+    ports:
+      - "5439:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{ POSTGRES_USER }}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ldap2:
+    container_name: airflow-ldap-new
+    build:
+      context: .
+      dockerfile: Dockerfile.ldap
+    environment:
+      - LDAP_ORGANISATION={{ LDAP_ORGANISATION }}
+      - LDAP_DOMAIN={{ LDAP_DOMAIN }}
+      - LDAP_ADMIN_PASSWORD={{ LDAP_ADMIN_PASSWORD }}
+      - LDAP_TLS=false
+    ports:
+      - "638:389"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  airflow-init:
+    <<: *airflow-common
+    user: "0:0"
+    command: airflow db migrate
+    environment:
+      - AIRFLOW__CORE__UPGRADE_DB={{ AIRFLOW__CORE__UPGRADE_DB }}
+      - AIRFLOW__CORE__LOAD_EXAMPLES={{ AIRFLOW__CORE__LOAD_EXAMPLES }}
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/airflow/webserver_config.py:/opt/airflow/webserver_config.py:ro
+      - /opt/airflow/airflow.cfg:/opt/airflow/airflow.cfg:ro
+    environment:
+      - AIRFLOW__CORE__AIRFLOW_CONFIG=/opt/airflow/airflow.cfg
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:123@postgresql:5432/airflow
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    restart: always
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+  prometheus:
+    image: dockerhub.timeweb.cloud/prom/prometheus:v2.45.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - /opt/airflow/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/airflow/prom-web-config.yml:/etc/prometheus/web-config.yml:ro
+    ports:
+      - "9091:9090"
+
+  grafana:
+    image: dockerhub.timeweb.cloud/grafana/grafana:10.0.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD={{ GRAFANA_ADMIN_PASSWORD }}

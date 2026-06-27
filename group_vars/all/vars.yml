@@ -1,0 +1,21 @@
+# Общие настройки
+DOMAIN: "example.org"
+
+# СУБД PostgreSQL
+POSTGRES_USER: "airflow"
+POSTGRES_PASSWORD: "123"
+POSTGRES_DB: "airflow"
+
+# OpenLDAP
+LDAP_ADMIN_PASSWORD: "admin"
+LDAP_ORGANISATION: "Example Corporate"
+LDAP_DOMAIN: "example.org"
+
+# Apache Airflow
+AIRFLOW__WEBSERVER__SECRET_KEY: "123"
+AIRFLOW_CONN_DATABASE: "postgresql+psycopg2://airflow:123@postgresql:5432/airflow"
+AIRFLOW_IMAGE_NAME: "dockerhub.timeweb.cloud/apache/airflow:2.9.3"
+AIRFLOW__CORE__UPGRADE_DB: "True"
+AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://airflow:123@postgresql:5432/airflow?sslmode=verify-ca&sslrootcert=/certs/ca.crt"
+AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+GRAFANA_ADMIN_PASSWORD: "admin"

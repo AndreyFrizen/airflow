@@ -1,0 +1,40 @@
+dn: ou=groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+dn: cn=etl_users,ou=groups,dc=example,dc=org
+objectClass: posixGroup
+cn: etl_users
+gidNumber: 5000
+
+dn: ou=users,dc=example,dc=org
+objectClass: organizationalUnit
+ou: users
+
+# 1. Admin Пользователь
+dn: uid=admin_user,ou=users,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: admin_user
+sn: Admin
+cn: Admin User
+mail: admin@example.org
+userPassword: adminpassword
+uidNumber: 10001
+gidNumber: 5000
+homeDirectory: /home/admin_user
+
+# 2. Analyst Пользователь
+dn: uid=analyst_user,ou=users,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: analyst_user
+sn: Analyst
+cn: Analyst User
+mail: analyst@example.org
+userPassword: analystpassword
+uidNumber: 10002
+gidNumber: 5000
+homeDirectory: /home/analyst_user

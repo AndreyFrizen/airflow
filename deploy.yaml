@@ -1,0 +1,17 @@
+- name: Deploy Secure Airflow Environment
+  hosts: airflow_nodes
+  become: yes
+  tasks:
+    - name: 1. Ensure Docker environment
+      include_role: name=common
+
+    - name: 2. Generate SSL Certificate
+      include_role: name=certificate
+
+    - name: 3. Deploy Airflow and Monitoring Stack
+      include_role: name=airflow
+
+    # - name: 4. Copy Grafana Dashboards
+    #   copy:
+    #     src: roles/airflow/files/grafana/ # Предположим, дашборды лежат здесь
+    #     dest: /opt/airflow/grafana_dashboards/

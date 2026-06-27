@@ -1,0 +1,3 @@
+FROM dockerhub.timeweb.cloud/osixia/openldap:1.5.0
+COPY init.ldif /container/service/slapd/assets/config/bootstrap/ldif/custom/init.ldif
+RUN chown openldap:openldap /container/service/slapd/assets/config/bootstrap/ldif/custom/init.ldif

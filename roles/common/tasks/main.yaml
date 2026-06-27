@@ -1,0 +1,32 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Docker
+  apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+    state: present
+    update_cache: yes
+
+- name: Install system dependencies
+  apt:
+    name:
+      - python3-pip
+      - python3-venv
+      - openssl
+    state: present
+    update_cache: no
+
+- name: Ensure docker python library is installed
+  pip:
+    name: docker
+    state: present
+    executable: pip3
+    extra_args: --break-system-packages
+
+- name: Ensure working directory exists
+  file:
+    path: /opt/airflow
+    state: directory
+    mode: "0755"

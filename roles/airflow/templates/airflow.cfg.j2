@@ -1,0 +1,18 @@
+[core]
+# Папка для ваших DAGs
+dags_folder = /opt/airflow/dags
+# Отключаем примеры, если не нужны
+load_examples = False
+
+[database]
+# Строка подключения к PostgreSQL
+sql_alchemy_conn = postgresql+psycopg2://{{ POSTGRES_USER }}:{{ POSTGRES_PASSWORD }}@postgresql:5432/{{ POSTGRES_DB }}
+
+[webserver]
+# Настройки веб-сервера
+web_server_port = 8080
+secret_key = {{ AIRFLOW__WEBSERVER__SECRET_KEY }}
+
+[logging]
+# Базовая настройка логирования
+base_log_folder = /opt/airflow/logs
