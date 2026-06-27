@@ -23,6 +23,8 @@
 Запустите основной плейбук для настройки сервера и запуска контейнеров:
 ```bash
 ansible-playbook -i inventory/hosts.ini deploy.yaml
+    # При запросе пароля
+ansible-playbook -i inventory/hosts.ini deploy.yaml -K
 ```
 
 # 📂 Структура проекта
