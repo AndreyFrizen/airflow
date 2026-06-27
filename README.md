@@ -13,66 +13,11 @@ Airflow Deployment with Ansible & Docker
     SSH-доступ: настроен по ключам для пользователя с правами sudo.
 
 🚀 Быстрый старт
-1. Подготовка
-
-Клонируйте репозиторий и настройте переменные:
-Bash
-
-git clone <url-вашего-репозитория>
-cd airflow-project
-
-2. Конфигурация
-
-    Отредактируйте inventory/hosts.ini — укажите IP-адрес вашего сервера.
-
-    Проверьте переменные в group_vars/all/vars.yml (пароли, настройки БД).
-
-    При необходимости обновите сертификаты в certificate/certs/.
-
-3. Запуск развертывания
 
 Запустите основной плейбук для настройки сервера и запуска контейнеров:
-Bash
-
+```bash
 ansible-playbook -i inventory/hosts.ini deploy.yaml
-
-🛠 Полезные команды
-Управление контейнерами (на сервере)
-
-Перейдите в директорию проекта: cd /opt/airflow
-
-    Статус сервисов:
-    Bash
-
-    sudo docker compose ps
-
-    Просмотр логов:
-    Bash
-
-    # Для всех контейнеров
-    sudo docker compose logs -f
-    # Для конкретного сервиса (например, webserver)
-    sudo docker compose logs -f airflow-webserver
-
-    Перезапуск стека:
-    Bash
-
-    sudo docker compose down
-    sudo docker compose up -d
-
-Обслуживание Airflow
-
-    Создание пользователя-админа:
-    Bash
-
-    sudo docker compose exec airflow-webserver airflow users create \
-      --username admin --firstname Admin --lastname Admin \
-      --role Admin --email admin@example.com --password admin
-
-    Проверка миграций БД:
-    Bash
-
-    sudo docker compose run --rm airflow-init airflow db migrate
+```
 
 📂 Структура проекта
 
