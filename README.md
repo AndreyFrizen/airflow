@@ -1,3 +1,7 @@
+### ПРЕДУПРЕЖДЕНИЕ
+
+В целях теста vault опущен и все перменные в том числе секреты хранятся в открытом виде
+
 Airflow Deployment with Ansible & Docker
 
 Проект автоматизированного развертывания Apache Airflow с использованием PostgreSQL, LDAP, Prometheus и Grafana через Ansible и Docker Compose.
