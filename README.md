@@ -1,9 +1,8 @@
 Airflow Deployment with Ansible & Docker
 
 Проект автоматизированного развертывания Apache Airflow с использованием PostgreSQL, LDAP, Prometheus и Grafana через Ansible и Docker Compose.
-📋 Системные требования
 
-Перед запуском убедитесь, что на целевом сервере установлены:
+📋 Системные требования
 
     OS: Ubuntu 22.04+ (рекомендуется)
 
